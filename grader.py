@@ -10,22 +10,31 @@ class Market:
     def __init__(self):
         #get random date and set of stocks
         self.day = 1
-        self.year = random.randint(2000, 2022)
+        # self.year = random.randint(2000, 2022)
+        self.year = 2020
         self.month = 1
         self.date = datetime.datetime(self.year,self.month, self.day)
-        self.stocks = [NASDAQ_LIST[i] for i in random.sample(range(1, len(NASDAQ_LIST)), TOTAL_STOCKS)]
-        self.prices = [getHourlyPriceByMonth(stock, formatDate(self.year, self.month)) for stock in NASDAQ_LIST]
+        self.stocks = [STOCK_NAMES[i] for i in random.sample(range(1, len(STOCK_NAMES)), TOTAL_STOCKS)]
+        self.prices = {}
+        self.start_new_day()
 
     def start_new_day(self):
         # the next day starts after this
         # update the month by day
+        # check if its a working day
         self.date += datetime.timedelta(days=1)
-
+        while self.get_price(self.stocks[0]) == None:
+            self.date += datetime.timedelta(days=1)
         #update prices for the day
-        self.prices = [self.get_price(stock) for stock in self.stocks]
+        for stock in self.stocks:
+            self.prices[stock] = self.get_price(stock)
 
     def get_all_prices(self):
-        return [list(stock_data[TIME_INCREMENT_LABEL])[self.day] for stock_data in self.prices]
+        temp_prices = self.prices
+        for stock in temp_prices.keys():
+            if temp_prices[stock] is None:
+                temp_prices[stock] = 0
+        return temp_prices
 
     def get_price(self, stock_symbol: int):
         return getPriceByDate(stock_symbol, self.date)
@@ -34,12 +43,12 @@ class Market:
 class Wallet:
     def __init__(self):
         self.total_funds = STARTING_FUNDS
-        self.portfolio = [0 for _ in range(TOTAL_STOCKS)]  #initially, no stocks owned
+        self.portfolio = {}  #initially, no stocks owned
 
     def get_worth_of_portfolio(self, stock_prices):
         total_worth = 0
-        for stock_index in range(TOTAL_STOCKS):
-            total_worth += self.portfolio[stock_index] * stock_prices[stock_index]
+        for stock_symbol in self.portfolio.keys():
+            total_worth += self.portfolio[stock_symbol] * stock_prices[stock_symbol]
         return total_worth
 
     def get_total_worth(self, stock_prices):
@@ -49,16 +58,28 @@ class Wallet:
         return
 
     def place_orders(self, stock_counts, stock_prices):
-        assert len(stock_counts) == TOTAL_STOCKS, "wrong number of stocks!"
-        for stock_index in range(len(stock_counts)):
-            if stock_counts[stock_index] < 0:  #sell shares
-                assert self.portfolio[stock_index] + stock_counts[stock_index] >= 0, "not enough shares to sell!"
-                self.portfolio -= (-stock_counts[stock_index])
-                self.total_funds += (-stock_counts[stock_index]) * stock_prices[stock_index]
-            elif stock_counts[stock_index] > 0:
-                assert (self.total_funds >= stock_counts[stock_index] * stock_prices[stock_index]), "insufficient funds for purchase!"
-                self.portfolio += stock_counts[stock_index]
-                self.total_funds -= stock_counts[stock_index] * stock_prices[stock_index]
+        assert len(stock_counts.keys()) == TOTAL_STOCKS, "wrong number of stocks!"
+        for stock_symbol in stock_counts.keys():
+            if stock_counts[stock_symbol] < 0:  #sell shares
+                assert self.portfolio[stock_symbol] + stock_counts[stock_symbol] >= 0, "not enough shares to sell!"
+                self.portfolio -= (-stock_counts[stock_symbol])
+                self.total_funds += (-stock_counts[stock_symbol]) * stock_prices[stock_symbol]
+            elif stock_counts[stock_symbol] > 0:
+                assert (self.total_funds >= stock_counts[stock_symbol] * stock_prices[stock_symbol]), "insufficient funds for purchase!"
+                self.portfolio += stock_counts[stock_symbol]
+                self.total_funds -= stock_counts[stock_symbol] * stock_prices[stock_symbol]
+
+
+class Trader:
+    def __init__(self):
+        self.wallet = Wallet()
+
 
 test_market = Market()
+test_wallet = Wallet()
 print(test_market.get_all_prices())
+print(test_wallet.get_worth_of_portfolio(test_market.get_all_prices()))
+test_market.start_new_day()
+
+print(test_market.get_all_prices())
+test_wallet.get_total_worth(test_market.get_all_prices())

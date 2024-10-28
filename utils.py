@@ -2,15 +2,16 @@ import requests
 import csv
 from datetime import datetime
 
-TOTAL_STOCKS = 1000
+TOTAL_STOCKS = 100
 STARTING_FUNDS = 10000 #start with $10k
 
 STOCK_TYPE_DATABASE = {}
-STOCK_NAMES = list(STOCK_TYPE_DATABASE.keys())
 with open('symbols_valid_meta.csv', newline='') as csvfile:
     STOCK_DATA = csv.DictReader(csvfile, delimiter=',')
     for row in STOCK_DATA:
         STOCK_TYPE_DATABASE[row["Symbol"]] = row["ETF"]
+
+STOCK_NAMES = list(STOCK_TYPE_DATABASE.keys())
 
 def format_date(date):
     return datetime.strptime(date, "%Y-%m-%d")
@@ -24,6 +25,6 @@ def getPriceByDate(SYMBOL, DATE):
             if day_formatted.date() == DATE.date():
                 return (float(day["High"]) + float(day["Low"]))/2
 
-    return None
+    return None #stock was not trading on this date.
 
 print(getPriceByDate("WMT", format_date('2000-01-03')))
