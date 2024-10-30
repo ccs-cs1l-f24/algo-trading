@@ -58,28 +58,17 @@ class Wallet:
         return
 
     def place_orders(self, stock_counts, stock_prices):
-        assert len(stock_counts.keys()) == TOTAL_STOCKS, "wrong number of stocks!"
+        # assert len(stock_counts.keys()) == TOTAL_STOCKS, "wrong number of stocks!"
         for stock_symbol in stock_counts.keys():
+            assert stock_symbol in STOCK_NAMES
             if stock_counts[stock_symbol] < 0:  #sell shares
                 assert self.portfolio[stock_symbol] + stock_counts[stock_symbol] >= 0, "not enough shares to sell!"
                 self.portfolio -= (-stock_counts[stock_symbol])
                 self.total_funds += (-stock_counts[stock_symbol]) * stock_prices[stock_symbol]
             elif stock_counts[stock_symbol] > 0:
+                print(self.total_funds, stock_symbol, stock_counts[stock_symbol], stock_prices[stock_symbol])
                 assert (self.total_funds >= stock_counts[stock_symbol] * stock_prices[stock_symbol]), "insufficient funds for purchase!"
-                self.portfolio += stock_counts[stock_symbol]
+                if not stock_symbol in self.portfolio:
+                    self.portfolio[stock_symbol] = 0
+                self.portfolio[stock_symbol] += stock_counts[stock_symbol]
                 self.total_funds -= stock_counts[stock_symbol] * stock_prices[stock_symbol]
-
-
-class Trader:
-    def __init__(self):
-        self.wallet = Wallet()
-
-
-test_market = Market()
-test_wallet = Wallet()
-print(test_market.get_all_prices())
-print(test_wallet.get_worth_of_portfolio(test_market.get_all_prices()))
-test_market.start_new_day()
-
-print(test_market.get_all_prices())
-test_wallet.get_total_worth(test_market.get_all_prices())

@@ -4,6 +4,7 @@ from datetime import datetime
 
 TOTAL_STOCKS = 100
 STARTING_FUNDS = 10000 #start with $10k
+NUM_DAYS = 10
 
 STOCK_TYPE_DATABASE = {}
 with open('symbols_valid_meta.csv', newline='') as csvfile:
@@ -23,8 +24,6 @@ def getPriceByDate(SYMBOL, DATE):
         for day in HISTORICAL_PRICES:
             day_formatted = format_date(day["Date"])
             if day_formatted.date() == DATE.date():
-                return (float(day["High"]) + float(day["Low"]))/2
+                return float(day["Close"])
 
     return None #stock was not trading on this date.
-
-print(getPriceByDate("WMT", format_date('2000-01-03')))
