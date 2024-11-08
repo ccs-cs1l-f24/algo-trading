@@ -11,7 +11,7 @@ class Market:
         #get random date and set of stocks
         self.day = 1
         # self.year = random.randint(2000, 2022)
-        self.year = 2020
+        self.year = 2015
         self.month = 1
         self.date = datetime.datetime(self.year,self.month, self.day)
         self.stocks = [STOCK_NAMES[i] for i in random.sample(range(1, len(STOCK_NAMES)), TOTAL_STOCKS)]
@@ -45,6 +45,9 @@ class Wallet:
         self.total_funds = STARTING_FUNDS
         self.portfolio = {}  #initially, no stocks owned
 
+    def get_cash_available(self):
+        return self.total_funds
+
     def get_worth_of_portfolio(self, stock_prices):
         total_worth = 0
         for stock_symbol in self.portfolio.keys():
@@ -60,15 +63,18 @@ class Wallet:
     def place_orders(self, stock_counts, stock_prices):
         # assert len(stock_counts.keys()) == TOTAL_STOCKS, "wrong number of stocks!"
         for stock_symbol in stock_counts.keys():
-            assert stock_symbol in STOCK_NAMES
             if stock_counts[stock_symbol] < 0:  #sell shares
+                print("selling", stock_symbol, stock_counts[stock_symbol], stock_prices[stock_symbol], "total funds:", self.total_funds)
                 assert self.portfolio[stock_symbol] + stock_counts[stock_symbol] >= 0, "not enough shares to sell!"
-                self.portfolio -= (-stock_counts[stock_symbol])
+                self.portfolio[stock_symbol] -= (-stock_counts[stock_symbol])
                 self.total_funds += (-stock_counts[stock_symbol]) * stock_prices[stock_symbol]
+                print("sold", stock_symbol, stock_counts[stock_symbol], stock_prices[stock_symbol], "total funds:", self.total_funds)
             elif stock_counts[stock_symbol] > 0:
-                print(self.total_funds, stock_symbol, stock_counts[stock_symbol], stock_prices[stock_symbol])
+                print("buying", stock_symbol, stock_counts[stock_symbol], stock_prices[stock_symbol], "total funds:", self.total_funds)
                 assert (self.total_funds >= stock_counts[stock_symbol] * stock_prices[stock_symbol]), "insufficient funds for purchase!"
                 if not stock_symbol in self.portfolio:
                     self.portfolio[stock_symbol] = 0
                 self.portfolio[stock_symbol] += stock_counts[stock_symbol]
                 self.total_funds -= stock_counts[stock_symbol] * stock_prices[stock_symbol]
+                print("bought", stock_symbol, stock_counts[stock_symbol], stock_prices[stock_symbol], "total funds:",
+                      self.total_funds)
