@@ -7,6 +7,9 @@ class Trader:
         self.daily_order = {}
         self.daily_prices = {}
 
+    def total_value(self):
+        return self.wallet.get_worth_of_portfolio(self.daily_prices) + self.wallet.get_cash_available()
+
     def __str__(self):
         return "Trader"
     def set_stocks(self, stock_market):

@@ -20,6 +20,7 @@ class basicSingleStockTrader(Trader):
 
     def determine_buys(self):
         ticker = self.pick
+        #buy low sell high
         if len(self.history) == 1 or self.history[-1] < self.history[-2]:
             #try to buy as many as possible if you can
             num_buys = self.wallet.get_cash_available()//self.history[-1]
