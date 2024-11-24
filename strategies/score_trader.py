@@ -2,7 +2,7 @@ from strategies.trader import *
 import statistics
 
 #will hopefully lead to more strats... generate a buy/sell score based on buy price and such
-class scoreTrader(Trader):
+class naiveScoreTrader(Trader):
     def __init__(self):
         super().__init__()
         self.pick = None

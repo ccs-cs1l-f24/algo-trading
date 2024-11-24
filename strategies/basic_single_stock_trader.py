@@ -16,7 +16,7 @@ class basicSingleStockTrader(Trader):
 
     def process_day(self, stock_prices):
         super().process_day(stock_prices)
-        self.history.append(self.daily_prices[self.pick])
+        self.history[self.pick].append(self.daily_prices[self.pick])
 
     def determine_buys(self):
         ticker = self.pick

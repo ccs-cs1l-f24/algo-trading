@@ -1,10 +1,11 @@
-import requests
 import csv
+import math
 from datetime import datetime
 
 TOTAL_STOCKS = 100
 STARTING_FUNDS = 10000 #start with $10k
 NUM_DAYS = 100
+EPSILON = 1e-7
 
 STOCK_TYPE_DATABASE = {}
 with open('symbols_valid_meta.csv', newline='') as csvfile:
@@ -18,24 +19,28 @@ MEMOIZED_STOCKS = {}
 def format_date(date):
     return datetime.strptime(date, "%Y-%m-%d")
 
-def getPriceByDate(SYMBOL, DATE):
-    if SYMBOL in MEMOIZED_STOCKS.keys():
-        if not DATE.date() in MEMOIZED_STOCKS[SYMBOL].keys():
+def getPriceByDate(symbol, DATE):
+    if symbol in MEMOIZED_STOCKS.keys():
+        if not DATE.date() in MEMOIZED_STOCKS[symbol].keys():
             return None
-        return MEMOIZED_STOCKS[SYMBOL][DATE.date()]
-    STOCK_TYPE = 'stocks/' if STOCK_TYPE_DATABASE[SYMBOL] == 'N' else 'etfs/'
-    with open(STOCK_TYPE + SYMBOL + '.csv', newline='') as STOCK_HISTORY:
-        HISTORICAL_PRICES = csv.DictReader(STOCK_HISTORY, delimiter=',')
+        return MEMOIZED_STOCKS[symbol][DATE.date()]
+    stock_type = 'stocks/' if STOCK_TYPE_DATABASE[symbol] == 'N' else 'etfs/'
+    with open(stock_type + symbol + '.csv', newline='') as STOCK_HISTORY:
+        historical_prices = csv.DictReader(STOCK_HISTORY, delimiter=',')
         #the slow thing
         # print(HISTORICAL_PRICES[0])
-        MEMOIZED_STOCKS[SYMBOL] = {}
-        for day in HISTORICAL_PRICES:
+        MEMOIZED_STOCKS[symbol] = {}
+        for day in historical_prices:
             day_formatted = format_date(day["Date"])
             if (day["Close"] == ''):
-                MEMOIZED_STOCKS[SYMBOL][day_formatted.date()] = None
+                MEMOIZED_STOCKS[symbol][day_formatted.date()] = None
             else:
-                MEMOIZED_STOCKS[SYMBOL][day_formatted.date()] = float(day["Close"])
+                MEMOIZED_STOCKS[symbol][day_formatted.date()] = truncate(float(day["Close"]))
 
-    if not DATE.date() in MEMOIZED_STOCKS[SYMBOL].keys():
+    if not DATE.date() in MEMOIZED_STOCKS[symbol].keys():
         return None
-    return MEMOIZED_STOCKS[SYMBOL][day_formatted.date()]
+
+    return MEMOIZED_STOCKS[symbol][DATE.date()]
+
+def truncate(x): #truncates to 2 decimal places
+    return math.trunc(100 * x)
