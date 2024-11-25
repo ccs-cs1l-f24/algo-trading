@@ -7,12 +7,12 @@ import strategy_list
 import copy
 
 #command line interface
-parser = argparse.ArgumentParser(prog="run_single_day")
-parser.add_argument("-d", "--num_days", default=100, type=int, help="Number of days in each simulation run.")
-parser.add_argument("-t", "--total_stocks", default=100, type=int, help="Total number of stock picks. Should be between 1 and 1000 for optimal performance.")
-parser.add_argument("-f", "--starting_funds", default=10000, type=int, help="Initial funds for simulation.")
-parser.add_argument("-p", "--preset", default="default", type=str, help="Preset stock picks. See strategy_list.py for options.")
-parser.add_argument("-i", "--init_date", default="01-01-2000", type=str, help="Initial date for simulation in dd-mm-yyyy format.")
+parser = argparse.ArgumentParser(prog="run_single_simulation", description="Runs a single simulation with given stock strategies and parameters. Generates a line plot for comparison over days in simulation.")
+parser.add_argument("-d", "--num_days", default=100, type=int, help="Number of days in each simulation run. Default argument: 100.")
+parser.add_argument("-t", "--total_stocks", default=100, type=int, help="Total number of stocks in the market. Should be between 1 and 1000 for optimal performance. Default argument: 100.")
+parser.add_argument("-f", "--starting_funds", default=10000, type=int, help="Initial funds for simulation. Default argument: 10000.")
+parser.add_argument("-p", "--preset", default="default", type=str, help="Preset stock picks. See strategy_list.py for options. Default argument: All strategies.")
+parser.add_argument("-i", "--init_date", default="01-01-2000", type=str, help="Initial date for simulation in dd-mm-yyyy format. Default argument: 01-01-2000.")
 
 args = parser.parse_args()
 print("number of days:", args.num_days)

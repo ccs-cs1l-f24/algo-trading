@@ -7,13 +7,13 @@ import strategy_list
 plt.rcParams.update({'font.size': 5})
 
 #command line interface
-parser = argparse.ArgumentParser(prog="main")
-parser.add_argument("-d", "--num_days", default=100, type=int, help="Number of days in each simulation run.")
-parser.add_argument("-s", "--simulation_length", default=5, type=int, help="Number of runs of the simulation.")
-parser.add_argument("-t", "--total_stocks", default=100, type=int, help="Total number of stock picks. Should be between 1 and 100 for optimal performance.")
-parser.add_argument("-f", "--starting_funds", default=10000, type=int, help="Initial funds for simulation.")
-parser.add_argument("-p", "--preset", default="default", type=str, help="Preset stock picks. See strategy_list.py for options.")
-parser.add_argument("-i", "--init_date", default="01-01-2000", type=str, help="Initial date for simulation in dd-mm-yyyy format.")
+parser = argparse.ArgumentParser(prog="main", description="Simulation tool to test stock trading strategies against each other. Will run the stock simulation with given parameters and generate a box plot for each strategy to allow for comparison.")
+parser.add_argument("-d", "--num_days", default=100, type=int, help="Number of days in each simulation run. Default argument: 100.")
+parser.add_argument("-s", "--simulation_length", default=5, type=int, help="Number of runs of the simulation. Default argument: 5.")
+parser.add_argument("-t", "--total_stocks", default=100, type=int, help="Total number of stocks in the market. Should be between 1 and 100 for optimal performance. Default argument: 100.")
+parser.add_argument("-f", "--starting_funds", default=10000, type=int, help="Initial funds for simulation. Default argument: 10000.")
+parser.add_argument("-p", "--preset", default="default", type=str, help="Preset stock picks. See strategy_list.py for options. Default argument: All strategies.")
+parser.add_argument("-i", "--init_date", default="01-01-2000", type=str, help="Initial date for simulation in dd-mm-yyyy format. Default argument: 01-01-2000.")
 
 args = parser.parse_args()
 print("number of days:", args.num_days)
