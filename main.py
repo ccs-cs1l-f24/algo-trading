@@ -1,45 +1,62 @@
-from strategies import *
 import matplotlib.pyplot as plt
-from grader import *
-from strategies.buy10k import benchmarkTrader
-from strategies.control_strategy import controlTrader
-from strategies.probabilistic_single_stock_trader import probabilisticSingleStockTrader
-from strategies.random_trader import randomTrader
-from strategies.basic_single_stock_trader import basicSingleStockTrader
-from strategies.score_trader import naiveScoreTrader
-from strategies.score_trader_improved import scoreTrader
-from strategies.scoring_functions import *
+import argparse
+import copy
 
+from strategies import *
+import strategy_list
+plt.rcParams.update({'font.size': 5})
+
+#command line interface
+parser = argparse.ArgumentParser(prog="main")
+parser.add_argument("-d", "--num_days", default=100, type=int, help="Number of days in each simulation run.")
+parser.add_argument("-s", "--simulation_length", default=5, type=int, help="Number of runs of the simulation.")
+parser.add_argument("-t", "--total_stocks", default=100, type=int, help="Total number of stock picks. Should be between 1 and 100 for optimal performance.")
+parser.add_argument("-f", "--starting_funds", default=10000, type=int, help="Initial funds for simulation.")
+parser.add_argument("-p", "--preset", default="default", type=str, help="Preset stock picks. See strategy_list.py for options.")
+parser.add_argument("-i", "--init_date", default="01-01-2000", type=str, help="Initial date for simulation in dd-mm-yyyy format.")
+
+args = parser.parse_args()
+print("number of days:", args.num_days)
+print("simulation length:", args.simulation_length)
+print("number of stocks:", args.total_stocks)
+print("starting funds:", args.starting_funds)
+print("initial date:", args.init_date)
+config.TOTAL_STOCKS = args.total_stocks
+config.STARTING_FUNDS = args.starting_funds
+config.INIT_DATE = args.init_date
+trader_list = copy.deepcopy(strategy_list.traders[args.preset])
+
+
+
+progress_bar = '.' * args.simulation_length
 stock_market = Market()
-# trader_list = [randomTrader(), randomTrader(), singleStockTrader()]
-trader_list = [scoreTrader(unitScore), scoreTrader(negativeUnitScore), controlTrader()]
-for trader in trader_list:
-    trader.set_stocks(stock_market.stocks)
-
 lines_x = [[] for _ in range(len(trader_list))]
 lines_y = [[] for _ in range(len(trader_list))]
-for x in range(NUM_DAYS):
-    print("start day", x)
-    idx = 0
+print("Loading...")
+for days in range(args.simulation_length):
+    progress_bar = progress_bar[0:days] + '#' + progress_bar[days + 1 : len(progress_bar)]
+    stock_market = Market()
+    trader_list = copy.deepcopy(strategy_list.traders[args.preset])
     for trader in trader_list:
-        trader.process_day(stock_market.get_all_prices())
-        trader.order_stocks()
-        for stock in trader.wallet.portfolio.keys():
-            print(stock, trader.wallet.portfolio[stock], trader.daily_prices[stock])
-        lines_x[idx].append(x)
-        lines_y[idx].append(trader.total_value()/100)
-        idx += 1
-        print("TOTAL VALUE", trader.total_value())
-        if trader.total_value() >= 2e6:
-            print("FAIL! WHAT HAPPENED?")
-    stock_market.start_new_day()
+        trader.set_stocks(stock_market.stocks)
+    for test_day in range(args.num_days):
+        idx = 0
+        for trader in trader_list:
+            trader.process_day(stock_market.get_all_prices())
+            trader.order_stocks()
+            if test_day == args.num_days - 1:
+                lines_x[idx].append(days)
+                lines_y[idx].append(trader.total_value()/100)
+            idx += 1
+        stock_market.start_new_day()
+    print(progress_bar, end='\r')
+    # os.system('do echo -en \r' + progress_bar)
 
+plt.boxplot(lines_y, tick_labels=[trader.__str__() for trader in trader_list])
 
-for idx in range(len(trader_list)):
-    plt.plot(lines_x[idx], lines_y[idx], label = str(trader_list[idx]))
+# for idx in range(len(trader_list)):
+#     plt.plot(lines_x[idx], lines_y[idx], label = str(trader_list[idx]))
+plt.xlabel("Strategy")
+plt.ylabel("Portfolio Value ($)")
 
-plt.legend()
 plt.show()
-for trader in trader_list:
-    print(trader)
-    trader.wallet.get_total_worth(stock_market.get_all_prices())

@@ -1,6 +1,6 @@
 from strategies.trader import *
 #buy SPLG
-PICK = "SPLG"
+PICK = "AAPL"
 
 class controlTrader(Trader):
     def __init__(self):

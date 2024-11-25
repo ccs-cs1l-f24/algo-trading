@@ -1,6 +1,7 @@
 from strategies.trader import *
-from utils import EPSILON, truncate
-import random
+from utils import truncate
+
+
 #generic trader that takes scores for each stock, and determines independently whether to buy or sell.
 
 #a valid score function will determine the proportion of stock to sell if it returns a negative value, and will give a "buy" weight if nonnegative.
@@ -53,4 +54,3 @@ class scoreTrader(Trader):
         self.generate_score()
         self.determine_buys()
         super().order_stocks()
-        self.wallet.get_total_worth(self.daily_prices)

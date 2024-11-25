@@ -2,6 +2,7 @@
 import random
 
 from utils import *
+import config
 import datetime
 
 
@@ -9,12 +10,9 @@ class Market:
     #construct a random market from stocks in the NYSE and NASDAQ
     def __init__(self):
         #get random date and set of stocks
-        self.day = 1
         # self.year = random.randint(2000, 2022)
-        self.year = 2013
-        self.month = 4
-        self.date = datetime.datetime(self.year,self.month, self.day)
-        self.stocks = [STOCK_NAMES[i] for i in random.sample(range(1, len(STOCK_NAMES)), TOTAL_STOCKS)] + ["SPLG"]
+        self.date = format_date(config.INIT_DATE)
+        self.stocks = [STOCK_NAMES[i] for i in random.sample(range(1, len(STOCK_NAMES)), config.TOTAL_STOCKS)]
         self.prices = {}
         self.start_new_day()
 
@@ -25,7 +23,6 @@ class Market:
         self.date += datetime.timedelta(days=1)
         while self.get_price(self.stocks[0]) is None:
             self.date += datetime.timedelta(days=1)
-
         #update prices for the day
         for stock in self.stocks:
             self.prices[stock] = self.get_price(stock)
@@ -43,7 +40,7 @@ class Market:
 
 class Wallet:
     def __init__(self):
-        self.total_funds = STARTING_FUNDS * 100
+        self.total_funds = config.STARTING_FUNDS * 100
         self.portfolio = {}  #initially, no stocks owned
 
     def get_cash_available(self):
