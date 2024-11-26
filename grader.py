@@ -21,7 +21,7 @@ class Market:
         # update the month by day
         # check if its a working day
         self.date += datetime.timedelta(days=1)
-        while self.get_price(self.stocks[0]) is None:
+        while self.get_price(self.stocks[0]) is None and self.date.year < 2022:
             self.date += datetime.timedelta(days=1)
         #update prices for the day
         for stock in self.stocks:

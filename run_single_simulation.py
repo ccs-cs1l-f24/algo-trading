@@ -15,6 +15,7 @@ parser.add_argument("-p", "--preset", default="default", type=str, help="Preset 
 parser.add_argument("-i", "--init_date", default="01-01-2000", type=str, help="Initial date for simulation in dd-mm-yyyy format. Default argument: 01-01-2000.")
 
 args = parser.parse_args()
+assert args.preset in strategy_list.traders.keys(), "Invalid Preset!"
 print("number of days:", args.num_days)
 print("number of stocks:", args.total_stocks)
 print("starting funds:", args.starting_funds)
@@ -30,7 +31,7 @@ trader_list = copy.deepcopy(strategy_list.traders[args.preset])
 stock_market = Market()
 lines_x = [[] for _ in range(len(trader_list))]
 lines_y = [[] for _ in range(len(trader_list))]
-progress_bar = '.' * (args.num_days//50)
+progress_bar = '.' * (args.num_days//config.PROG_BAR_CONST)
 print("Loading...")
 for trader in trader_list:
     trader.set_stocks(stock_market.stocks)
@@ -44,8 +45,8 @@ for day in range(args.num_days):
         lines_y[idx].append(trader.total_value()/100)
         idx += 1
     stock_market.start_new_day()
-    if day % 50 == 0:
-        progress_bar = progress_bar[0:day//50] + '#' + progress_bar[day//50 + 1: len(progress_bar)]
+    if day % config.PROG_BAR_CONST == 0:
+        progress_bar = progress_bar[0:day//config.PROG_BAR_CONST] + '#' + progress_bar[day//config.PROG_BAR_CONST + 1: len(progress_bar)]
         print(progress_bar, end='\r')
 
 for idx in range(len(trader_list)):
